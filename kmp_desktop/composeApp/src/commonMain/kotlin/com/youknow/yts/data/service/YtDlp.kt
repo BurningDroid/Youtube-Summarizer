@@ -1,4 +1,4 @@
-package com.youknow.yts.ytdlp
+package com.youknow.yts.data.service
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -35,7 +35,6 @@ class YtDlp {
                 println(br.readText())
             }
             process.waitFor()
-            println("[test] done")
         }
     }
 

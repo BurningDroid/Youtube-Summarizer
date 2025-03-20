@@ -1,0 +1,13 @@
+package com.youknow.yts.ui
+
+sealed interface UiState {
+    data object Input : UiState
+
+    data class Processing(val step: ProcessStep) : UiState
+
+    data class Result(val result: String) : UiState
+}
+
+enum class ProcessStep {
+    DOWNLOAD_VIDEO, STT, SUMMARIZE
+}

@@ -5,18 +5,20 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.youknow.yts.ytdlp.YtDlp
-import kotlinx.coroutines.Dispatchers
+import com.youknow.yts.data.service.OpenAiService
+import com.youknow.yts.data.service.YtDlp
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 class MainViewModel(
-    private val ytDlp: YtDlp = YtDlp()
+    private val ytDlp: YtDlp = YtDlp(),
+    private val openAiService: OpenAiService = OpenAiService()
 ) : ViewModel() {
 
-    var youtubeUrl: String by mutableStateOf("")
+    var youtubeUrl: String by mutableStateOf("https://www.youtube.com/watch?v=ypVNTWsgBhU")
         private set
 
-    var enableRunButton: Boolean by mutableStateOf(true)
+    var uiState: UiState by mutableStateOf(UiState.Input)
         private set
 
     fun onInputUrl(url: String) {
@@ -28,12 +30,17 @@ class MainViewModel(
             return
         }
 
-        enableRunButton = false
+        uiState = UiState.Processing(ProcessStep.DOWNLOAD_VIDEO)
 
         viewModelScope.launch {
             ytDlp.download(youtubeUrl)
 
-            enableRunButton = true
+            uiState = UiState.Processing(ProcessStep.STT)
+            val audioText = openAiService.transcribeAudio()
+
+            uiState = UiState.Processing(ProcessStep.SUMMARIZE)
+            val result = openAiService.summarize(audioText)
+            uiState = UiState.Result(result)
         }
     }
 
