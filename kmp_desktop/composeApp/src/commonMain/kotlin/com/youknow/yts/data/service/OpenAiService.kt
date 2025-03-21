@@ -55,6 +55,7 @@ class OpenAiService(
                 if (!file.exists()) {
                     println("[yts] file not exist")
                     return@withContext "Error: File not found"
+                    return@withContext ""
                 }
 
                 val resp = client.post("${BASE_URL}audio/transcriptions") {

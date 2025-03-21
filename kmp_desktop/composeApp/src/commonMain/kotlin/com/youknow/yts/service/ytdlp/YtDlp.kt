@@ -1,5 +1,6 @@
-package com.youknow.yts.data.service
+package com.youknow.yts.service.ytdlp
 
+import com.youknow.yts.service.ProcessService
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -7,7 +8,7 @@ import java.io.InputStream
 import java.nio.file.Files
 import java.nio.file.StandardCopyOption
 
-class YtDlp {
+class YtDlp: ProcessService() {
 
     private val osName: String by lazy { System.getProperty("os.name") }
     private val execName: String by lazy {
@@ -27,14 +28,14 @@ class YtDlp {
         withContext(Dispatchers.IO) {
             deleteTempFile()
 
-            val process = ProcessBuilder(execFile.absolutePath, "-o", "temp", url)
+            process = ProcessBuilder(execFile.absolutePath, "-o", "temp", url)
                 .redirectErrorStream(true)
                 .start()
 
-            process.inputStream.bufferedReader().use { br ->
+            process?.inputStream?.bufferedReader()?.use { br ->
                 println(br.readText())
             }
-            process.waitFor()
+            process?.waitFor()
         }
     }
 

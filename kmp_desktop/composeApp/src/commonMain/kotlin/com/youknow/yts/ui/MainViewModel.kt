@@ -6,12 +6,14 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.youknow.yts.data.service.OpenAiService
-import com.youknow.yts.data.service.YtDlp
+import com.youknow.yts.service.whisper.WhisperService
+import com.youknow.yts.service.ytdlp.YtDlp
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 class MainViewModel(
     private val ytDlp: YtDlp = YtDlp(),
+    private val whisperService: WhisperService = WhisperService(),
     private val openAiService: OpenAiService = OpenAiService()
 ) : ViewModel() {
 
@@ -36,7 +38,7 @@ class MainViewModel(
             ytDlp.download(youtubeUrl)
 
             uiState = UiState.Processing(ProcessStep.STT)
-            val audioText = openAiService.transcribeAudio()
+            val audioText = whisperService.translate()
 
             uiState = UiState.Processing(ProcessStep.SUMMARIZE)
             val result = openAiService.summarize(audioText)
