@@ -54,7 +54,6 @@ class OpenAiService(
                 val file = File("temp.webm")
                 if (!file.exists()) {
                     println("[yts] file not exist")
-                    return@withContext "Error: File not found"
                     return@withContext ""
                 }
 
