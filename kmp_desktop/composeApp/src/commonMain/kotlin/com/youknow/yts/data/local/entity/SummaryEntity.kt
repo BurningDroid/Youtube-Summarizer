@@ -10,5 +10,6 @@ data class SummaryEntity(
     val thumbnailUrl: String,
     val fullText: String = "",
     val summary: String = "",
+    val processTime: Long,
     val datetime: Long = System.currentTimeMillis()
 )

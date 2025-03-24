@@ -59,11 +59,12 @@ class MainViewModel(
 
             uiState = UiState.Processing(ProcessStep.SUMMARIZE)
             val result = openAiService.summarize(audioText)
-            summary = summary.copy(summary = result)
+            val processTime = System.currentTimeMillis() - sTime
+            summary = summary.copy(summary = result, processTime = processTime)
             save(summary)
 
             uiState = UiState.Result(
-                time = System.currentTimeMillis() - sTime,
+                time = processTime,
                 result = result
             )
         }
