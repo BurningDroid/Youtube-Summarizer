@@ -19,6 +19,7 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
+import java.io.File
 
 class OpenAiService(
     private val ioDispatchers: CoroutineDispatcher = Dispatchers.IO
@@ -46,6 +47,10 @@ class OpenAiService(
     suspend fun summarize(rawText: String): String {
         if (rawText.isBlank()) {
             println("[yts] summarize - input is blank")
+            val textFile = File("temp.txt")
+            if (textFile.exists()) {
+                textFile.delete()
+            }
             return ""
         }
 

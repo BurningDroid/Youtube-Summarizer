@@ -31,14 +31,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.youknow.yts.ui.MainViewModel
 import com.youknow.yts.ui.ProcessStep
 import com.youknow.yts.ui.UiState
 import com.youknow.yts.ui.nav.Route
 
 @Composable
 fun SummarizePane(
-    vm: MainViewModel = viewModel { MainViewModel() },
+    vm: SummarizeViewModel = viewModel { SummarizeViewModel() },
     onNavigate: (Route) -> Unit
 ) {
     Scaffold(

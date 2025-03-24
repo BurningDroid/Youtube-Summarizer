@@ -1,4 +1,4 @@
-package com.youknow.yts.ui
+package com.youknow.yts.ui.summarize
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -8,14 +8,17 @@ import androidx.lifecycle.viewModelScope
 import com.youknow.yts.data.local.entity.SummaryEntity
 import com.youknow.yts.data.local.getRoomDatabase
 import com.youknow.yts.data.local.source.SummaryDao
+import com.youknow.yts.service.FileManager
 import com.youknow.yts.service.gpt.OpenAiService
 import com.youknow.yts.service.whisper.WhisperService
 import com.youknow.yts.service.ytdlp.YtDlp
+import com.youknow.yts.ui.ProcessStep
+import com.youknow.yts.ui.UiState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class MainViewModel(
+class SummarizeViewModel(
     private val ytDlp: YtDlp = YtDlp(),
     private val whisperService: WhisperService = WhisperService(),
     private val openAiService: OpenAiService = OpenAiService(),
@@ -29,7 +32,7 @@ class MainViewModel(
         }
     }
 
-    var youtubeUrl: String by mutableStateOf("https://www.youtube.com/watch?v=ZYc13CKAN04")
+    var youtubeUrl: String by mutableStateOf("https://www.youtube.com/watch?v=qRsJC4eyBd4")
         private set
 
     var uiState: UiState by mutableStateOf(UiState.Input)
@@ -50,10 +53,11 @@ class MainViewModel(
 
         viewModelScope.launch {
             var summary = ytDlp.download(youtubeUrl)
+            println("[yts] summary: $summary")
             save(summary)
 
             uiState = UiState.Processing(ProcessStep.STT)
-            val audioText = whisperService.translate()
+            val audioText = whisperService.transcribe()
             summary = summary.copy(fullText = audioText)
             save(summary)
 
@@ -67,6 +71,7 @@ class MainViewModel(
                 time = processTime,
                 result = result
             )
+            FileManager.clear()
         }
     }
 

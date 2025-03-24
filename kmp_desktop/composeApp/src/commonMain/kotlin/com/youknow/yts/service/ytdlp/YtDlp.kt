@@ -25,24 +25,44 @@ class YtDlp: ProcessService() {
         tempFile
     }
 
+    private fun getMetaInfo(url: String): SummaryEntity {
+        process = ProcessBuilder(execFile.absolutePath, "--skip-download", "--print", "\"%(title)s%(thumbnail)s\"", url)
+            .redirectErrorStream(true)
+            .start()
+
+        val result: List<String>? = process?.inputStream?.bufferedReader()?.use { br ->
+            br.readLines()
+        }
+
+        process?.waitFor()
+        println(result)
+
+        val meta = result?.last()?.replace("\"", "")
+        return SummaryEntity(
+            id = url,
+            title = meta?.substringBefore("https://") ?: "",
+            thumbnailUrl = "https://${meta?.substringAfter("https://")}"
+        )
+    }
+
     suspend fun download(url: String): SummaryEntity {
+        println("[yts] download: $url")
         return withContext(Dispatchers.IO) {
+            val summary = getMetaInfo(url)
             deleteTempFile()
 
-            process = ProcessBuilder(execFile.absolutePath, "-o", "temp", "--get-title", "--get-thumbnail", url)
+            process = ProcessBuilder(execFile.absolutePath, "-f", "bestaudio", "--extract-audio", "--audio-format", "wav", "-o", "temp", url)
                 .redirectErrorStream(true)
                 .start()
-
 
             val result: List<String>? = process?.inputStream?.bufferedReader()?.use { br ->
                 br.readLines()
             }
+
             process?.waitFor()
-            SummaryEntity(
-                id = url,
-                title = result?.get(0) ?: "",
-                thumbnailUrl = result?.get(1) ?: ""
-            )
+            println(result)
+
+            summary
         }
     }
 

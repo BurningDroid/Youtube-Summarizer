@@ -7,21 +7,27 @@ import java.io.File
 
 class WhisperService: ProcessService() {
 
-    suspend fun translate(): String {
+    suspend fun transcribe(): String {
         return withContext(Dispatchers.IO) {
-            process = ProcessBuilder("whisper", "temp.webm", "--output_format", "txt", "--language", "Korean", "--task", "transcribe")
+            val outputFile = File("temp.txt")
+            if (outputFile.exists()) {
+                outputFile.delete()
+            }
+
+            process = ProcessBuilder("whisper", "temp.wav", "--output_format", "txt", "--language", "Korean", "--task", "transcribe")
                 .redirectErrorStream(true)
                 .start()
 
             val result = StringBuilder()
             process?.inputStream?.bufferedReader()?.use { br ->
                 val text = br.readText()
-                println("[yts] translate - $text")
+                println("[yts] transcribe - $text")
                 result.append(text)
             }
             process?.waitFor()
 
-            File("temp.txt").inputStream().bufferedReader().use { br ->
+            outputFile.createNewFile()
+            outputFile.inputStream().bufferedReader().use { br ->
                 br.readText()
             }
         }
