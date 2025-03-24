@@ -11,5 +11,6 @@ class ServiceManager(
     fun kill() {
         ytDlp.kill()
         whisperService.kill()
+        println("[yts] kill process")
     }
 }

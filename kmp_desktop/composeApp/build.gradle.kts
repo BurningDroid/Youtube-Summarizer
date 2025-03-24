@@ -8,6 +8,8 @@ plugins {
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
     kotlin("plugin.serialization").version("2.0.0")
+    alias(libs.plugins.ksp)
+    alias(libs.plugins.room)
 }
 
 kotlin {
@@ -46,6 +48,11 @@ kotlin {
             implementation(libs.ktor.client.json)
             implementation(libs.ktor.client.logging)
             implementation(libs.ktor.serialization.json)
+
+            // Room
+            implementation(libs.androidx.room.runtime)
+            implementation(libs.androidx.sqlite.bundled)
+
         }
         desktopMain.dependencies {
             implementation(compose.desktop.currentOs)
@@ -83,6 +90,7 @@ android {
 
 dependencies {
     debugImplementation(compose.uiTooling)
+    ksp(libs.androidx.room.compiler)
 }
 
 compose.desktop {
@@ -95,4 +103,8 @@ compose.desktop {
             packageVersion = "1.0.0"
         }
     }
+}
+
+room {
+    schemaDirectory("$projectDir/schemas")
 }

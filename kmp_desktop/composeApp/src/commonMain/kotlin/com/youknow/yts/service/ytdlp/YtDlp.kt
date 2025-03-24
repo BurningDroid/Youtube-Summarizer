@@ -1,5 +1,6 @@
 package com.youknow.yts.service.ytdlp
 
+import com.youknow.yts.data.local.entity.SummaryEntity
 import com.youknow.yts.service.ProcessService
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -24,18 +25,24 @@ class YtDlp: ProcessService() {
         tempFile
     }
 
-    suspend fun download(url: String) {
-        withContext(Dispatchers.IO) {
+    suspend fun download(url: String): SummaryEntity {
+        return withContext(Dispatchers.IO) {
             deleteTempFile()
 
-            process = ProcessBuilder(execFile.absolutePath, "-o", "temp", url)
+            process = ProcessBuilder(execFile.absolutePath, "-o", "temp", "--get-title", "--get-thumbnail", url)
                 .redirectErrorStream(true)
                 .start()
 
-            process?.inputStream?.bufferedReader()?.use { br ->
-                println(br.readText())
+
+            val result: List<String>? = process?.inputStream?.bufferedReader()?.use { br ->
+                br.readLines()
             }
             process?.waitFor()
+            SummaryEntity(
+                id = url,
+                title = result?.get(0) ?: "",
+                thumbnailUrl = result?.get(1) ?: ""
+            )
         }
     }
 

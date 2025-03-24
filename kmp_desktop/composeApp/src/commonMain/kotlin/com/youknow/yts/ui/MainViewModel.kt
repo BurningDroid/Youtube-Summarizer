@@ -5,20 +5,31 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.youknow.yts.data.local.entity.SummaryEntity
+import com.youknow.yts.data.local.getRoomDatabase
+import com.youknow.yts.data.local.source.SummaryDao
 import com.youknow.yts.data.service.OpenAiService
 import com.youknow.yts.service.whisper.WhisperService
 import com.youknow.yts.service.ytdlp.YtDlp
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlin.system.measureTimeMillis
+import kotlinx.coroutines.withContext
 
 class MainViewModel(
     private val ytDlp: YtDlp = YtDlp(),
     private val whisperService: WhisperService = WhisperService(),
-    private val openAiService: OpenAiService = OpenAiService()
+    private val openAiService: OpenAiService = OpenAiService(),
+    private val summaryDao: SummaryDao = getRoomDatabase().getSummaryDao()
 ) : ViewModel() {
 
-    var youtubeUrl: String by mutableStateOf("https://www.youtube.com/watch?v=ypVNTWsgBhU")
+    init {
+        viewModelScope.launch {
+            val list = summaryDao.getAll()
+            println("list: $list")
+        }
+    }
+
+    var youtubeUrl: String by mutableStateOf("https://www.youtube.com/watch?v=ZYc13CKAN04")
         private set
 
     var uiState: UiState by mutableStateOf(UiState.Input)
@@ -38,18 +49,31 @@ class MainViewModel(
         uiState = UiState.Processing(ProcessStep.DOWNLOAD_VIDEO)
 
         viewModelScope.launch {
-            ytDlp.download(youtubeUrl)
+            var summary = ytDlp.download(youtubeUrl)
+            save(summary)
 
             uiState = UiState.Processing(ProcessStep.STT)
             val audioText = whisperService.translate()
+            summary = summary.copy(fullText = audioText)
+            save(summary)
 
             uiState = UiState.Processing(ProcessStep.SUMMARIZE)
             val result = openAiService.summarize(audioText)
+            summary = summary.copy(summary = result)
+            save(summary)
 
             uiState = UiState.Result(
                 time = System.currentTimeMillis() - sTime,
                 result = result
             )
+        }
+    }
+
+    private fun save(summary: SummaryEntity) {
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                summaryDao.insert(summary)
+            }
         }
     }
 
