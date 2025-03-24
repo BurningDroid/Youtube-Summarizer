@@ -10,6 +10,7 @@ import com.youknow.yts.service.whisper.WhisperService
 import com.youknow.yts.service.ytdlp.YtDlp
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlin.system.measureTimeMillis
 
 class MainViewModel(
     private val ytDlp: YtDlp = YtDlp(),
@@ -32,6 +33,8 @@ class MainViewModel(
             return
         }
 
+        val sTime = System.currentTimeMillis()
+
         uiState = UiState.Processing(ProcessStep.DOWNLOAD_VIDEO)
 
         viewModelScope.launch {
@@ -42,7 +45,11 @@ class MainViewModel(
 
             uiState = UiState.Processing(ProcessStep.SUMMARIZE)
             val result = openAiService.summarize(audioText)
-            uiState = UiState.Result(result)
+
+            uiState = UiState.Result(
+                time = System.currentTimeMillis() - sTime,
+                result = result
+            )
         }
     }
 
