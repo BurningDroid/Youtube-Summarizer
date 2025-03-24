@@ -15,16 +15,21 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Button
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Icon
+import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.OutlinedTextField
+import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
+import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.Done
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Color.Companion.Green
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 
@@ -32,33 +37,75 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 fun MainPane(
     vm: MainViewModel = viewModel { MainViewModel() }
 ) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(8.dp),
-    ) {
-        val uiState = vm.uiState
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = {
+                    Text(text = "Youtube Summarizer")
+                },
+                actions = {
+                    IconButton(
+                        onClick = {}
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Search,
+                            contentDescription = "",
+                            tint = MaterialTheme.colors.onPrimary
+                        )
+                    }
 
+                    IconButton(
+                        onClick = {}
+                    ) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.List,
+                            contentDescription = "",
+                            tint = MaterialTheme.colors.onPrimary
+                        )
+                    }
+
+                    IconButton(
+                        onClick = {}
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Settings,
+                            contentDescription = "",
+                            tint = MaterialTheme.colors.onPrimary
+                        )
+                    }
+                },
+                contentColor = MaterialTheme.colors.onPrimary
+            )
+        }
+    ) {
         Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .weight(1F)
+                .fillMaxSize()
+                .padding(8.dp),
         ) {
-            when (uiState) {
-                is UiState.Processing -> LoadingUi(uiState.step)
+            val uiState = vm.uiState
 
-                is UiState.Result -> ResultUi(uiState)
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1F)
+            ) {
+                when (uiState) {
+                    is UiState.Processing -> LoadingUi(uiState.step)
 
-                UiState.Input -> {}
+                    is UiState.Result -> ResultUi(uiState)
+
+                    UiState.Input -> {}
+                }
             }
-        }
 
-        InputUi(
-            input = vm.youtubeUrl,
-            uiState = uiState,
-            onInput = vm::onInputUrl,
-            onClickRun = vm::onClickRun
-        )
+            InputUi(
+                input = vm.youtubeUrl,
+                uiState = uiState,
+                onInput = vm::onInputUrl,
+                onClickRun = vm::onClickRun
+            )
+        }
     }
 }
 
