@@ -8,7 +8,7 @@ import androidx.lifecycle.viewModelScope
 import com.youknow.yts.data.local.entity.SummaryEntity
 import com.youknow.yts.data.local.getRoomDatabase
 import com.youknow.yts.data.local.source.SummaryDao
-import com.youknow.yts.data.service.OpenAiService
+import com.youknow.yts.service.gpt.OpenAiService
 import com.youknow.yts.service.whisper.WhisperService
 import com.youknow.yts.service.ytdlp.YtDlp
 import kotlinx.coroutines.Dispatchers

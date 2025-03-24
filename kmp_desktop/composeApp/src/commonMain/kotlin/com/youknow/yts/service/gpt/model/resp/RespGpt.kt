@@ -1,4 +1,4 @@
-package com.youknow.yts.data.model.resp
+package com.youknow.yts.service.gpt.model.resp
 
 import kotlinx.serialization.Serializable
 
